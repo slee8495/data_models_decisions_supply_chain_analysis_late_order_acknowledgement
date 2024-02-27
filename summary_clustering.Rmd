@@ -1,0 +1,54 @@
+---
+title: " "
+output:
+  html_document:
+  css: styles.css
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{css, echo=FALSE}
+body {
+  font-family: 'Verdana', sans-serif;
+}
+
+#footer {
+position: fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+background-color: #f2f2f2; /* You can change the background color */
+  color: black; /* Text color */
+  text-align: center;
+padding: 10px 0;
+font-size: 1.2em;
+}
+
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# **Note:**
+
+#### - The information shown here is made-up. I made it with random numbers and names using the Python code you can see below. While the data is not real, it is designed to be a hypothetical yet realistic representation of actual data encountered in the field.
+
+<br>
+
+![](images/Screenshot%202024-02-26%20at%207.18.48%20PM.png)
+
+<br>
+
+#### - For a descriptive analysis, which includes various plots and datasets, click on the link below:
+
+### [Click here: Descriptive Analysis - Late Order Acknowledgement](https://business-analytics-slee.shinyapps.io/SupplyChainAnalytics_LateOrder_descriptive/)
+
+<br>
+
+#### - In summary, I'm going to conduct a clustering analysis with the "Late Order Acknowledgement" dataset using R. The aim is to discover clusters or patterns within the data by examining variables such as the number of days taken to acknowledge an order, location, and the type of order—whether it's a standard profile order, a leadership-directed order, or customer-specific. This analysis may reveal distinct groupings in the dataset that share commonalities in their order acknowledgement timeframes.
+
+<br>
+
+------------------------------------------------------------------------
