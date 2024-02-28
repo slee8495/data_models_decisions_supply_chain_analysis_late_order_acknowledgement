@@ -1,6 +1,101 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Clustering Analysis - Late Order Acknowledgement"
+author: "Sangho Lee"
+date: "2023-12-28"
+output:
+  html_document:
+    df_print: paged
 ---
+
+
+```{css, echo=FALSE}
+body {
+  font-family: 'Verdana', sans-serif;
+}
+
+#footer {
+position: fixed;
+left: 0;
+bottom: 0;
+width: 100%;
+background-color: #f2f2f2; /* You can change the background color */
+  color: black; /* Text color */
+  text-align: center;
+padding: 10px 0;
+font-size: 1.2em;
+}
+
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+
+```{r, message = FALSE}
+library(tidyverse)
+library(DT)
+library(lubridate)
+
+```
+
+```{r, include=FALSE}
+library(readxl)
+library(writexl)
+order_late <- readxl::read_excel("anonymized_data.xlsx") 
+
+```
+
+1. Load the data into R.
+2. Descriptive Analysis <br>
+ 2-1. <br>
+ 2-2. <br>
+ 2-3. <br>
+ and more.. <br>
+3. Determine the optimal number of clusters using methods like the Elbow method.
+4. Perform K-means clustering.
+5. Analyze the resulting clusters to interpret different groupings of orders based on acknowledgment times and other relevant factors.
+
+
+
+
+1. Load the data into R.
+
+
+I've loaded already. Let's take a look at the dataset to get a sense of what we're working with.
+
+```{r, warning=FALSE}
+order_late %>%
+  dplyr::mutate(order_date = as.Date(order_date),
+                delivery_date = as.Date(delivery_date),
+                ship_date = as.Date(ship_date),
+                date_acknowledge = as.Date(date_acknowledge),
+                date_acknowledgement_calc = as.Date(date_acknowledgement_calc)) %>% 
+  DT::datatable(options = list(scrollX = TRUE))
+
+```
+
+
+Next things to do: make md. data description.
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+::: {#footer}
+```{r echo=FALSE, results='asis'}
+cat("Copyright © 2023-", format(Sys.Date(), "%Y"), "Sangho Lee, All rights reserved.")
+```
+:::
+
+
 
 
