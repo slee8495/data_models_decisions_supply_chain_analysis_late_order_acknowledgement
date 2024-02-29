@@ -75,10 +75,27 @@ order_late %>%
 
 ```
 
+## Data Description:
+- profile_owner: The identifier of the individual who owns the profile related to the order.
+- profile_name: The full name of the profile owner associated with the order.
+- enter_by: The identifier of the individual who entered the order into the system.
+- enter_by_name: The full name of the individual who entered the order into the system.
+- leader: The identifier of the leadership or supervisory figure associated with the order or the profile owner.
+- leader_name: The full name of the leader or supervisor associated with the order.
+- loc: A code or number that represents the location where the order was processed or is to be fulfilled from.
+- order: The unique identifier assigned to the order.
+- customer_name: The name of the individual or entity to whom the order will be delivered.
+- customer: A unique identifier ssociated with the customer.
+- order_date: The date on which the order was placed or recorded.
+- week_number: The week of the year when the order was placed, which could be useful for seasonal analysis.
+- delivery_date: The date when the order is scheduled to be delivered to the customer.
+- ship_date: The actual date when the order was shipped out from the facility.
+- date_acknowledge: The date on which the order acknowledgment was recorded in the system.
+- date_acknowledgement_calc: Calculated date for when the order was supposed to be acknowledged, possibly used for performance tracking.
+- days_to_acknowledge: The number of days it took to acknowledge the order from the order date, a measure of processing time.
+- On Time: An indicator of whether the order acknowledgment was within the expected time frame, with values like 'On Time' or 'Not on Time'.
 
-Next things to do: make md. data description.
-
-
+These columns together can provide valuable insights into the order processing efficiency and timeliness. Understanding patterns and relationships within these columns through clustering or other data analysis methods could help in identifying bottlenecks, predicting future performance, and improving overall service delivery.
 
 
 
