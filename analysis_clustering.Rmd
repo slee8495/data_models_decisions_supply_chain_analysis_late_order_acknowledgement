@@ -1,7 +1,6 @@
 ---
 title: "Clustering Analysis - Late Order Acknowledgement"
 author: "Sangho Lee"
-date: "2023-12-28"
 output:
   html_document:
     df_print: paged
@@ -43,7 +42,12 @@ library(lubridate)
 library(readxl)
 library(writexl)
 order_late <- readxl::read_excel("anonymized_data.xlsx") 
-
+order_late <- order_late %>% 
+  dplyr::mutate(order_date = as.Date(order_date),
+                delivery_date = as.Date(delivery_date),
+                ship_date = as.Date(ship_date),
+                date_acknowledge = as.Date(date_acknowledge),
+                date_acknowledgement_calc = as.Date(date_acknowledgement_calc)) 
 ```
 
 1. Load the data into R.
@@ -59,47 +63,167 @@ order_late <- readxl::read_excel("anonymized_data.xlsx")
 
 
 
-1. Load the data into R.
-
-
-I've loaded already. Let's take a look at the dataset to get a sense of what we're working with.
+## 1. Load the data into R.
+### I've loaded already. Let's take a look at the dataset to get a sense of what we're working with.
 
 ```{r, warning=FALSE}
 order_late %>%
-  dplyr::mutate(order_date = as.Date(order_date),
-                delivery_date = as.Date(delivery_date),
-                ship_date = as.Date(ship_date),
-                date_acknowledge = as.Date(date_acknowledge),
-                date_acknowledgement_calc = as.Date(date_acknowledgement_calc)) %>% 
   DT::datatable(options = list(scrollX = TRUE))
+
 
 ```
 
-## Data Description:
+### Data Description:
 - profile_owner: The identifier of the individual who owns the profile related to the order.
-- profile_name: The full name of the profile owner associated with the order.
-- enter_by: The identifier of the individual who entered the order into the system.
-- enter_by_name: The full name of the individual who entered the order into the system.
-- leader: The identifier of the leadership or supervisory figure associated with the order or the profile owner.
-- leader_name: The full name of the leader or supervisor associated with the order.
+
+- leader_name: The identifier of the leadership or supervisory figure associated with the order or the profile owner.
+
 - loc: A code or number that represents the location where the order was processed or is to be fulfilled from.
+
 - order: The unique identifier assigned to the order.
-- customer_name: The name of the individual or entity to whom the order will be delivered.
-- customer: A unique identifier ssociated with the customer.
+
+- customer: The name of the individual or entity to whom the order will be delivered.
+
 - order_date: The date on which the order was placed or recorded.
+
 - week_number: The week of the year when the order was placed, which could be useful for seasonal analysis.
+
 - delivery_date: The date when the order is scheduled to be delivered to the customer.
+
 - ship_date: The actual date when the order was shipped out from the facility.
+
 - date_acknowledge: The date on which the order acknowledgment was recorded in the system.
+
 - date_acknowledgement_calc: Calculated date for when the order was supposed to be acknowledged, possibly used for performance tracking.
+
 - days_to_acknowledge: The number of days it took to acknowledge the order from the order date, a measure of processing time.
-- On Time: An indicator of whether the order acknowledgment was within the expected time frame, with values like 'On Time' or 'Not on Time'.
+
+- on_time: An indicator of whether the order acknowledgment was within the expected time frame, with values like 'On Time' = 1 or 'Not on Time = 0
 
 These columns together can provide valuable insights into the order processing efficiency and timeliness. Understanding patterns and relationships within these columns through clustering or other data analysis methods could help in identifying bottlenecks, predicting future performance, and improving overall service delivery.
 
 
 
-## Next: Descriptive Analysis
+2. Descriptive Analysis
+
+### 2-1. Summary Statistics
+
+```{r}
+order_late %>% dplyr::summarise(
+  Mean = mean(days_to_acknowledge, na.rm = TRUE),
+  Median = median(days_to_acknowledge, na.rm = TRUE),
+  Min = min(days_to_acknowledge, na.rm = TRUE),
+  Max = max(days_to_acknowledge, na.rm = TRUE),
+  SD = sd(days_to_acknowledge, na.rm = TRUE)
+)
+
+
+
+```
+
+
+### 2-2. Distribution of Days to Acknowledge
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  theme_minimal()
+
+
+```
+
+
+
+### 2-3. Distribution of Days to Acknowledge by Profile Owner
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge by Profile Owner",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  facet_wrap(~profile_owner) +
+  theme_minimal()
+
+
+```
+
+### 2-4. Distribution of Days to Acknowledge by Location
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge by Location",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  facet_wrap(~loc) +
+  theme_minimal()
+
+```
+
+### 2-5. Distribution of Days to Acknowledge by Leader
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge by Leader",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  facet_wrap(~leader_name) +
+  theme_minimal()
+
+```
+
+### 2-6. Distribution of Days to Acknowledge by Week Number
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge by Week Number",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  facet_wrap(~week_number) +
+  theme_minimal()
+```
+
+### 2-7. Summary Statistics by On Time
+```{r}
+order_late %>%
+  group_by(on_time) %>%
+  summarise(
+    Mean_days_to_acknowledge = mean(days_to_acknowledge, na.rm = TRUE),
+    Median_days_to_acknowledge = median(days_to_acknowledge, na.rm = TRUE),
+    SD_days_to_acknowledge = sd(days_to_acknowledge, na.rm = TRUE),
+    Min_days_to_acknowledge = min(days_to_acknowledge, na.rm = TRUE),
+    Max_days_to_acknowledge = max(days_to_acknowledge, na.rm = TRUE),
+    Count = n()
+  )
+```
+
+
+### 2-8. Distribution of Days to Acknowledge by On Time
+
+```{r}
+order_late %>% 
+  ggplot(aes(x = days_to_acknowledge)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Days to Acknowledge by On Time",
+       x = "Days to Acknowledge",
+       y = "Frequency") +
+  facet_wrap(~on_time) +
+  theme_minimal()
+
+```
+
+
+
+
+# Next: I need to change the descriptive analysis page according to the new data. (Shiny dashboard need to change)
+
+# Next: clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
 
 
 
