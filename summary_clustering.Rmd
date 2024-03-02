@@ -44,6 +44,7 @@ font-size: 1.2em;
 #### - For a descriptive analysis, which includes various plots and datasets, click on the link below:
 
 ### [Click here: Descriptive Analysis - Late Order Acknowledgement](https://business-analytics-slee.shinyapps.io/SupplyChainAnalytics_LateOrder_descriptive/)
+<span style="color:red">**Please be aware that the data analysis presented here may differ from the data displayed in the reactive Shiny dashboard. This discrepancy is due to the random generation of data, which can produce different results each time.**</span>
 
 <br>
 
