@@ -221,8 +221,6 @@ order_late %>%
 
 
 
-# Next: I need to change the descriptive analysis page according to the new data. (Shiny dashboard need to change)
-
 # Next: clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
 
 
