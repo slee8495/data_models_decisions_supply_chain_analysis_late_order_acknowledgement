@@ -31,6 +31,31 @@ font-size: 1.2em;
 ------------------------------------------------------------------------
 
 
+
+### Problem Statement: <br>
+In the competitive landscape of order processing, the promptness and efficiency of acknowledging orders are pivotal for sustaining high customer satisfaction and operational effectiveness. However, an analysis of this sample dataset reveals a concerning trend: a significant portion of order acknowledgments are not being made on time. This inefficiency poses a risk not only to customer satisfaction but also to the reliability of the order fulfillment process. The aim of this analysis is to examine into the underlying causes of these delays by examining the days it takes to acknowledge orders and exploring variations across different dimensions such as profile owner, location, and leader. Through descriptive analysis and K-means clustering, we seek to uncover patterns, bottlenecks, and actionable insights that can ultimately lead to process optimizations. Identifying distinct clusters of order behaviors and acknowledgment times will allow us to pinpoint specific areas for improvement, thereby enhancing process efficiencies and ensuring timely order acknowledgments. The ultimate goal is to transform these insights into strategic actions that elevate operational performance and customer service levels.<br><br>
+
+### Analysis Steps:<br>
+1. Load the Data into R <br>
+
+2. Descriptive Analysis <br>
+Conduct a thorough descriptive analysis to gain a foundational understanding of the dataset. This includes generating summary statistics, analyzing the distribution of days to acknowledge across various factors, and visualizing data to uncover initial insights and patterns.<br>
+
+3. Determine the Optimal Number of Clusters Using Methods Like the Elbow Method:<br>
+Utilize the Elbow method to ascertain the optimal number of clusters for the dataset. This technique helps identify a point where increasing the number of clusters does not significantly improve the model's fit, balancing between simplicity and explanatory power.<br>
+
+4. Perform K-means Clustering:<br>
+Apply K-means clustering to segment orders based on acknowledgment times and other relevant characteristics. This unsupervised learning approach will categorize orders into clusters with similar features, revealing inherent groupings within the data.<br>
+
+5. Analyze the Resulting Clusters to Interpret Different Groupings of Orders:<br>
+In the final step, examine the characteristics and patterns of the identified clusters. This detailed analysis aims to interpret different groupings of orders based on acknowledgment times and additional factors, identifying strategic areas where targeted improvements can significantly enhance acknowledgment timeliness and overall process efficiency.<br>
+
+
+## 1. Load the data into R.<br>
+After loading these essential libraries, we can proceed to load and initially inspect our dataset. The dataset, order_late, contains information about order acknowledgments, including whether they were made on time or not. The dataset also includes details about the profile owner, leader, location, and other relevant attributes that can be used to understand the patterns and factors contributing to late acknowledgments. Let's start by loading the data and taking a look at the first few rows to understand its structure and contents.<br>
+
+
+
 ```{r, message = FALSE}
 library(tidyverse)
 library(DT)
@@ -50,26 +75,10 @@ order_late <- order_late %>%
                 date_acknowledgement_calc = as.Date(date_acknowledgement_calc)) 
 ```
 
-1. Load the data into R.
-2. Descriptive Analysis <br>
- 2-1. <br>
- 2-2. <br>
- 2-3. <br>
- and more.. <br>
-3. Determine the optimal number of clusters using methods like the Elbow method.
-4. Perform K-means clustering.
-5. Analyze the resulting clusters to interpret different groupings of orders based on acknowledgment times and other relevant factors.
-
-
-
-
-## 1. Load the data into R.
-### I've loaded already. Let's take a look at the dataset to get a sense of what we're working with.
 
 ```{r, warning=FALSE}
 order_late %>%
   DT::datatable(options = list(scrollX = TRUE))
-
 
 ```
 
@@ -104,9 +113,10 @@ These columns together can provide valuable insights into the order processing e
 
 
 
-2. Descriptive Analysis
+## 2. Descriptive Analysis <br>
+Before diving into complex analytical techniques, it's crucial to start with a descriptive analysis of our dataset. This beginning step will allow us to understand the basic characteristics of the data, identify any immediate patterns, and set the stage for more in-depth analysis.
 
-### 2-1. Summary Statistics
+### 2-1. Summary Statistics <br>
 
 ```{r}
 order_late %>% dplyr::summarise(
@@ -120,7 +130,13 @@ order_late %>% dplyr::summarise(
 
 
 ```
+- Mean: The average number of days to acknowledge an order is approximately 51.66 days. This indicates the central tendency of our dataset, suggesting that on average, orders take about 52 days to be acknowledged.<br>
+- Median: The median days to acknowledge is 52, which means half of the orders are acknowledged in less than 52 days, and the other half takes longer.<br>
+- Minimum (Min): The fastest acknowledgment time recorded is 2 days, indicating that some orders are acknowledged almost immediately after being placed.<br>
+- Maximum (Max): On the other end, the longest time taken to acknowledge an order is 105 days, suggesting significant delays in some cases.<br>
+- Standard Deviation (SD): With a standard deviation of approximately 31.99, there's considerable variability in the acknowledgment times. This high variability indicates that the acknowledgment process's efficiency varies widely across different orders.<br><br>
 
+- The considerable gap between the minimum and maximum values, along with a high standard deviation, suggests that while some orders are processed efficiently, others face substantial delays. <br>
 
 ### 2-2. Distribution of Days to Acknowledge
 ```{r}
@@ -221,7 +237,7 @@ order_late %>%
 
 
 
-# Next: clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
+# Next: write up start from 2-2. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
 
 
 
