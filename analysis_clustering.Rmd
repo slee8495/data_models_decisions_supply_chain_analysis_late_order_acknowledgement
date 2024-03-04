@@ -139,6 +139,9 @@ order_late %>% dplyr::summarise(
 - The considerable gap between the minimum and maximum values, along with a high standard deviation, suggests that while some orders are processed efficiently, others face substantial delays. <br>
 
 ### 2-2. Distribution of Days to Acknowledge
+
+This histogram provides a graphical representation of the frequency distribution and is an essential tool for spotting trends and patterns that might not be evident from the summary statistics alone.
+
 ```{r}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
@@ -150,10 +153,20 @@ order_late %>%
 
 
 ```
+<br><br>
+- The data appears to be right-skewed, indicating that while most orders are acknowledged within a shorter period, there is a long tail of orders that take much longer to be acknowledged.<br><br>
+- There is a high frequency of orders that are acknowledged in just a few days after being placed, as shown by the tall bars at the lower end of the histogram.<br><br>
+- The presence of bars across the entire range up to 100 days illustrates variability in the acknowledgment times across different orders.<br><br>
 
-
+<br><br>
 
 ### 2-3. Distribution of Days to Acknowledge by Profile Owner
+Exploring the distribution of acknowledgment times across different profile owners can reveal individual or systemic factors influencing the efficiency of order processing. By breaking down the histogram of days to acknowledge for each profile owner. Here, I aim to uncover:
+
+- Whether there are significant differences in acknowledgment times across different profile owners.
+- Whether some profile owners consistently have faster or slower acknowledgment times than others.
+
+
 ```{r}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
@@ -167,7 +180,25 @@ order_late %>%
 
 ```
 
+<br><br>
+- we can note the following observations for potential areas of focus:
+<br><br>
+- Profile owners such as Andrew Bates and April Lynch show a concentration of acknowledgments within the swift timeframe, suggesting an efficient acknowledgment process.<br><br>
+- Other profiles, for example, Christopher Marti and Dakota Young, display a wider spread of acknowledgment times, indicating a more variable process that could benefit from a review to understand the causes of delays.<br><br>
+<br><br>
+- It's important to note that while a right-skewed distribution is generally favorable in this context, any extensive right tail or outliers can still highlight opportunities for improvement. 
+<br><br>
+We can target these specific areas with training, process adjustments, or other interventions to streamline acknowledgment times further. The goal is not only to maintain quick processing for most orders but also to reduce the frequency and extent of any outliers, ensuring a consistently high-performing acknowledgment process across all profile owners.
+
+
+
+
+<br><br>
+
+
 ### 2-4. Distribution of Days to Acknowledge by Location
+Assessing the days to acknowledge by location, a right-skewed distribution generally signifies prompt acknowledgment of orders—this skewness indicates a location's strong performance in quickly processing most of its orders.
+<br><br>
 ```{r}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
@@ -179,6 +210,17 @@ order_late %>%
   theme_minimal()
 
 ```
+
+<br><br>
+- Location 5: The pronounced right skewness here is an indicator of exceptional performance, with the bulk of orders being acknowledged very swiftly and only a few exceptions taking longer.<br>
+- Location 28: Demonstrates similar right skewness to Location 5, suggesting that the location efficiently acknowledges most orders, with rare delays.
+<br><br>
+
+
+Across all locations, understanding the right skewness within the context of order acknowledgment times is valuable. It allows for the recognition of high-performing locations, providing a benchmark for others, and highlights the necessity to address the exceptional cases in the tail to achieve consistent, organization-wide operational excellence.
+
+<br><br>
+
 
 ### 2-5. Distribution of Days to Acknowledge by Leader
 ```{r}
@@ -237,7 +279,7 @@ order_late %>%
 
 
 
-# Next: write up start from 2-2. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
+# Next: write up start from 2-5. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
 
 
 
