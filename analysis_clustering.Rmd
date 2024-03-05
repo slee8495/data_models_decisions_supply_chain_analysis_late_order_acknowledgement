@@ -149,7 +149,7 @@ order_late %>%
   labs(title = "Distribution of Days to Acknowledge",
        x = "Days to Acknowledge",
        y = "Frequency") +
-  theme_minimal()
+  theme_classic()
 
 
 ```
@@ -167,7 +167,7 @@ Exploring the distribution of acknowledgment times across different profile owne
 - Whether some profile owners consistently have faster or slower acknowledgment times than others.
 
 
-```{r}
+```{r, fig.width=10, fig.height=8}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
@@ -175,7 +175,7 @@ order_late %>%
        x = "Days to Acknowledge",
        y = "Frequency") +
   facet_wrap(~profile_owner) +
-  theme_minimal()
+  theme_classic()
 
 
 ```
@@ -199,7 +199,7 @@ We can target these specific areas with training, process adjustments, or other 
 ### 2-4. Distribution of Days to Acknowledge by Location
 Assessing the days to acknowledge by location, a right-skewed distribution generally signifies prompt acknowledgment of orders—this skewness indicates a location's strong performance in quickly processing most of its orders.
 <br><br>
-```{r}
+```{r, fig.width=10, fig.height=8}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
@@ -207,7 +207,7 @@ order_late %>%
        x = "Days to Acknowledge",
        y = "Frequency") +
   facet_wrap(~loc) +
-  theme_minimal()
+  theme_classic()
 
 ```
 
@@ -223,7 +223,11 @@ Across all locations, understanding the right skewness within the context of ord
 
 
 ### 2-5. Distribution of Days to Acknowledge by Leader
-```{r}
+
+The distribution of days to acknowledge orders when segmented by leaders can offer insights into management effectiveness and team performance. Analyzing these distributions helps identify which leaders are overseeing processes that ensure orders are acknowledged promptly and which may need to address delays within their teams.
+<br>
+
+```{r, fig.width=10, fig.height=8}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
@@ -231,12 +235,23 @@ order_late %>%
        x = "Days to Acknowledge",
        y = "Frequency") +
   facet_wrap(~leader_name) +
-  theme_minimal()
+  theme_classic()
 
 ```
+<br><br>
+
+- Ashley Morales: This leader's distribution shows a significant right skew with a high peak at the lower end, indicating that most orders under this leader are acknowledged very promptly, which is commendable.<br><br>
+- Jeremy Love: The distribution under this leader is quite varied without a pronounced skew, suggesting a diverse range of acknowledgment times.<br><br>
+- Justin Clark: Here we see a relatively uniform distribution across the acknowledgment period, with a slight increase towards the tail end, which may indicate delays.<br><br>
+- Lisa McMillan: This leader's distribution is also right-skewed, similar to Ashley Morales, however, there are notable late order acknowledgement <br><br>
+- Whitney Davidson: There is a notable right skew, but with a spike at the far end, suggesting that while many orders are acknowledged quickly, a significant number are also experiencing substantial delays.<br><br>
+
+
 
 ### 2-6. Distribution of Days to Acknowledge by Week Number
-```{r}
+Analyzing the distribution of days to acknowledge by week number can provide insights into the operational trends over time and the influence of seasonal factors. <br>
+
+```{r, fig.width=10, fig.height=8}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
@@ -244,8 +259,16 @@ order_late %>%
        x = "Days to Acknowledge",
        y = "Frequency") +
   facet_wrap(~week_number) +
-  theme_minimal()
+  theme_classic()
 ```
+<br><br>
+The histograms segmented by week number reveal:<br>
+- Some weeks suggesting quick acknowledgments. For example, weeks 1, 2, and 3 have significant right skewed, indicative of a strong start to the year.<br><br>
+- Such as week 40, indicating most orders are acknowledged very late.<br><br>
+
+This temporal analysis can highlight periods where the process may require adjustment due to increased order volumes or staff availability issues, such as holiday seasons or financial year-ends. Understanding these patterns is crucial for planning resources, managing workload, and setting realistic timelines for order processing.<br><br>
+
+
 
 ### 2-7. Summary Statistics by On Time
 ```{r}
@@ -279,7 +302,7 @@ order_late %>%
 
 
 
-# Next: write up start from 2-5. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
+# Next: write up start from 2-7. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
 
 
 
