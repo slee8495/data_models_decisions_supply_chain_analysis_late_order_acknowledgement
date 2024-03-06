@@ -6,7 +6,6 @@ output:
     df_print: paged
 ---
 
-
 ```{css, echo=FALSE}
 body {
   font-family: 'Verdana', sans-serif;
@@ -30,36 +29,35 @@ font-size: 1.2em;
 
 ------------------------------------------------------------------------
 
-
-
 ### Problem Statement: <br>
+
 In the competitive landscape of order processing, the promptness and efficiency of acknowledging orders are pivotal for sustaining high customer satisfaction and operational effectiveness. However, an analysis of this sample dataset reveals a concerning trend: a significant portion of order acknowledgments are not being made on time. This inefficiency poses a risk not only to customer satisfaction but also to the reliability of the order fulfillment process. The aim of this analysis is to examine into the underlying causes of these delays by examining the days it takes to acknowledge orders and exploring variations across different dimensions such as profile owner, location, and leader. Through descriptive analysis and K-means clustering, we seek to uncover patterns, bottlenecks, and actionable insights that can ultimately lead to process optimizations. Identifying distinct clusters of order behaviors and acknowledgment times will allow us to pinpoint specific areas for improvement, thereby enhancing process efficiencies and ensuring timely order acknowledgments. The ultimate goal is to transform these insights into strategic actions that elevate operational performance and customer service levels.<br><br>
 
 ### Analysis Steps:<br>
-1. Load the Data into R <br>
 
-2. Descriptive Analysis <br>
-Conduct a thorough descriptive analysis to gain a foundational understanding of the dataset. This includes generating summary statistics, analyzing the distribution of days to acknowledge across various factors, and visualizing data to uncover initial insights and patterns.<br>
+1.  Load the Data into R <br>
 
-3. Determine the Optimal Number of Clusters Using Methods Like the Elbow Method:<br>
-Utilize the Elbow method to ascertain the optimal number of clusters for the dataset. This technique helps identify a point where increasing the number of clusters does not significantly improve the model's fit, balancing between simplicity and explanatory power.<br>
+2.  Descriptive Analysis <br> Conduct a thorough descriptive analysis to gain a foundational understanding of the dataset. This includes generating summary statistics, analyzing the distribution of days to acknowledge across various factors, and visualizing data to uncover initial insights and patterns.<br>
 
-4. Perform K-means Clustering:<br>
-Apply K-means clustering to segment orders based on acknowledgment times and other relevant characteristics. This unsupervised learning approach will categorize orders into clusters with similar features, revealing inherent groupings within the data.<br>
+3.  Determine the Optimal Number of Clusters:<br> Utilize the Elbow method to ascertain the optimal number of clusters for the dataset. This technique helps identify a point where increasing the number of clusters does not significantly improve the model's fit, balancing between simplicity and explanatory power.<br>
 
-5. Analyze the Resulting Clusters to Interpret Different Groupings of Orders:<br>
-In the final step, examine the characteristics and patterns of the identified clusters. This detailed analysis aims to interpret different groupings of orders based on acknowledgment times and additional factors, identifying strategic areas where targeted improvements can significantly enhance acknowledgment timeliness and overall process efficiency.<br>
+4.  Perform K-means Clustering:<br> Apply K-means clustering to segment orders based on acknowledgment times and other relevant characteristics. This unsupervised learning approach will categorize orders into clusters with similar features, revealing inherent groupings within the data.<br>
 
+5.  Visualize the Clusters:<br> Visualize the resulting clusters to gain insights into the distinct groupings of orders. This step will help identify patterns, trends, and differences across clusters, providing a clear understanding of the order acknowledgment behaviors and the factors contributing to late acknowledgments.<br>
+
+6.  Conclusion:<br><br><br>
 
 ## 1. Load the data into R.<br>
+
 After loading these essential libraries, we can proceed to load and initially inspect our dataset. The dataset, order_late, contains information about order acknowledgments, including whether they were made on time or not. The dataset also includes details about the profile owner, leader, location, and other relevant attributes that can be used to understand the patterns and factors contributing to late acknowledgments. Let's start by loading the data and taking a look at the first few rows to understand its structure and contents.<br>
-
-
 
 ```{r, message = FALSE}
 library(tidyverse)
 library(DT)
 library(lubridate)
+library(cluster)
+library(factoextra)
+library(shiny)
 
 ```
 
@@ -75,48 +73,53 @@ order_late <- order_late %>%
                 date_acknowledgement_calc = as.Date(date_acknowledgement_calc)) 
 ```
 
-
 ```{r, warning=FALSE}
 order_late %>%
-  DT::datatable(options = list(scrollX = TRUE))
+  DT::datatable(
+    extensions = 'Buttons',
+    options = list(
+      dom = 'Blfrtip',
+      buttons = c('copy', 'csv', 'excel'),
+      pageLength = 5,
+      scrollX = TRUE
+    )
+  )
 
 ```
 
 ### Data Description:
-- profile_owner: The identifier of the individual who owns the profile related to the order.
 
-- leader_name: The identifier of the leadership or supervisory figure associated with the order or the profile owner.
+-   profile_owner: The identifier of the individual who owns the profile related to the order.
 
-- loc: A code or number that represents the location where the order was processed or is to be fulfilled from.
+-   leader_name: The identifier of the leadership or supervisory figure associated with the order or the profile owner.
 
-- order: The unique identifier assigned to the order.
+-   loc: A code or number that represents the location where the order was processed or is to be fulfilled from.
 
-- customer: The name of the individual or entity to whom the order will be delivered.
+-   order: The unique identifier assigned to the order.
 
-- order_date: The date on which the order was placed or recorded.
+-   customer: The name of the individual or entity to whom the order will be delivered.
 
-- week_number: The week of the year when the order was placed, which could be useful for seasonal analysis.
+-   order_date: The date on which the order was placed or recorded.
 
-- delivery_date: The date when the order is scheduled to be delivered to the customer.
+-   week_number: The week of the year when the order was placed, which could be useful for seasonal analysis.
 
-- ship_date: The actual date when the order was shipped out from the facility.
+-   delivery_date: The date when the order is scheduled to be delivered to the customer.
 
-- date_acknowledge: The date on which the order acknowledgment was recorded in the system.
+-   ship_date: The actual date when the order was shipped out from the facility.
 
-- date_acknowledgement_calc: Calculated date for when the order was supposed to be acknowledged, possibly used for performance tracking.
+-   date_acknowledge: The date on which the order acknowledgment was recorded in the system.
 
-- days_to_acknowledge: The number of days it took to acknowledge the order from the order date, a measure of processing time.
+-   date_acknowledgement_calc: Calculated date for when the order was supposed to be acknowledged, possibly used for performance tracking.
 
-- on_time: An indicator of whether the order acknowledgment was within the expected time frame, with values like 'On Time' = 1 or 'Not on Time = 0
+-   days_to_acknowledge: The number of days it took to acknowledge the order from the order date, a measure of processing time.
 
-These columns together can provide valuable insights into the order processing efficiency and timeliness. Understanding patterns and relationships within these columns through clustering or other data analysis methods could help in identifying bottlenecks, predicting future performance, and improving overall service delivery.
+-   on_time: An indicator of whether the order acknowledgment was within the expected time frame, with values like 'On Time' = 1 or 'Not on Time = 0
 
-
+These columns together can provide valuable insights into the order processing efficiency and timeliness. Understanding patterns and relationships within these columns through clustering or other data analysis methods could help in identifying bottlenecks, predicting future performance, and improving overall service delivery. <br><br><br><br>
 
 ## 2. Descriptive Analysis <br>
-Before diving into complex analytical techniques, it's crucial to start with a descriptive analysis of our dataset. This beginning step will allow us to understand the basic characteristics of the data, identify any immediate patterns, and set the stage for more in-depth analysis.
 
-### 2-1. Summary Statistics <br>
+Before diving into complex analytical techniques, it's crucial to start with a descriptive analysis of our dataset. This beginning step will allow us to understand the basic characteristics of the data, identify any immediate patterns, and set the stage for more in-depth analysis. <br><br><br><br> \### 2-1. Summary Statistics <br>
 
 ```{r}
 order_late %>% dplyr::summarise(
@@ -130,13 +133,18 @@ order_late %>% dplyr::summarise(
 
 
 ```
-- Mean: The average number of days to acknowledge an order is approximately 51.66 days. This indicates the central tendency of our dataset, suggesting that on average, orders take about 52 days to be acknowledged.<br>
-- Median: The median days to acknowledge is 52, which means half of the orders are acknowledged in less than 52 days, and the other half takes longer.<br>
-- Minimum (Min): The fastest acknowledgment time recorded is 2 days, indicating that some orders are acknowledged almost immediately after being placed.<br>
-- Maximum (Max): On the other end, the longest time taken to acknowledge an order is 105 days, suggesting significant delays in some cases.<br>
-- Standard Deviation (SD): With a standard deviation of approximately 31.99, there's considerable variability in the acknowledgment times. This high variability indicates that the acknowledgment process's efficiency varies widely across different orders.<br><br>
 
-- The considerable gap between the minimum and maximum values, along with a high standard deviation, suggests that while some orders are processed efficiently, others face substantial delays. <br>
+-   Mean: The average number of days to acknowledge an order is approximately 51.66 days. This indicates the central tendency of our dataset, suggesting that on average, orders take about 52 days to be acknowledged.<br>
+
+-   Median: The median days to acknowledge is 52, which means half of the orders are acknowledged in less than 52 days, and the other half takes longer.<br>
+
+-   Minimum (Min): The fastest acknowledgment time recorded is 2 days, indicating that some orders are acknowledged almost immediately after being placed.<br>
+
+-   Maximum (Max): On the other end, the longest time taken to acknowledge an order is 105 days, suggesting significant delays in some cases.<br>
+
+-   Standard Deviation (SD): With a standard deviation of approximately 31.99, there's considerable variability in the acknowledgment times. This high variability indicates that the acknowledgment process's efficiency varies widely across different orders.<br><br>
+
+-   The considerable gap between the minimum and maximum values, along with a high standard deviation, suggests that while some orders are processed efficiently, others face substantial delays. <br><br><br><br>
 
 ### 2-2. Distribution of Days to Acknowledge
 
@@ -153,19 +161,17 @@ order_late %>%
 
 
 ```
-<br><br>
-- The data appears to be right-skewed, indicating that while most orders are acknowledged within a shorter period, there is a long tail of orders that take much longer to be acknowledged.<br><br>
-- There is a high frequency of orders that are acknowledged in just a few days after being placed, as shown by the tall bars at the lower end of the histogram.<br><br>
-- The presence of bars across the entire range up to 100 days illustrates variability in the acknowledgment times across different orders.<br><br>
 
-<br><br>
+<br><br> - The data appears to be right-skewed, indicating that while most orders are acknowledged within a shorter period, there is a long tail of orders that take much longer to be acknowledged.<br><br> - There is a high frequency of orders that are acknowledged in just a few days after being placed, as shown by the tall bars at the lower end of the histogram.<br><br> - The presence of bars across the entire range up to 100 days illustrates variability in the acknowledgment times across different orders.<br><br>
+
+<br><br><br><br>
 
 ### 2-3. Distribution of Days to Acknowledge by Profile Owner
+
 Exploring the distribution of acknowledgment times across different profile owners can reveal individual or systemic factors influencing the efficiency of order processing. By breaking down the histogram of days to acknowledge for each profile owner. Here, I aim to uncover:
 
-- Whether there are significant differences in acknowledgment times across different profile owners.
-- Whether some profile owners consistently have faster or slower acknowledgment times than others.
-
+-   Whether there are significant differences in acknowledgment times across different profile owners.
+-   Whether some profile owners consistently have faster or slower acknowledgment times than others.
 
 ```{r, fig.width=10, fig.height=8}
 order_late %>% 
@@ -180,25 +186,14 @@ order_late %>%
 
 ```
 
-<br><br>
-- we can note the following observations for potential areas of focus:
-<br><br>
-- Profile owners such as Andrew Bates and April Lynch show a concentration of acknowledgments within the swift timeframe, suggesting an efficient acknowledgment process.<br><br>
-- Other profiles, for example, Christopher Marti and Dakota Young, display a wider spread of acknowledgment times, indicating a more variable process that could benefit from a review to understand the causes of delays.<br><br>
-<br><br>
-- It's important to note that while a right-skewed distribution is generally favorable in this context, any extensive right tail or outliers can still highlight opportunities for improvement. 
-<br><br>
-We can target these specific areas with training, process adjustments, or other interventions to streamline acknowledgment times further. The goal is not only to maintain quick processing for most orders but also to reduce the frequency and extent of any outliers, ensuring a consistently high-performing acknowledgment process across all profile owners.
+<br><br> - we can note the following observations for potential areas of focus: <br><br> - Profile owners such as Andrew Bates and April Lynch show a concentration of acknowledgments within the swift timeframe, suggesting an efficient acknowledgment process.<br><br> - Other profiles, for example, Christopher Marti and Dakota Young, display a wider spread of acknowledgment times, indicating a more variable process that could benefit from a review to understand the causes of delays.<br><br> <br><br> - It's important to note that while a right-skewed distribution is generally favorable in this context, any extensive right tail or outliers can still highlight opportunities for improvement. <br><br> We can target these specific areas with training, process adjustments, or other interventions to streamline acknowledgment times further. The goal is not only to maintain quick processing for most orders but also to reduce the frequency and extent of any outliers, ensuring a consistently high-performing acknowledgment process across all profile owners.
 
-
-
-
-<br><br>
-
+<br><br><br><br>
 
 ### 2-4. Distribution of Days to Acknowledge by Location
-Assessing the days to acknowledge by location, a right-skewed distribution generally signifies prompt acknowledgment of orders—this skewness indicates a location's strong performance in quickly processing most of its orders.
-<br><br>
+
+Assessing the days to acknowledge by location, a right-skewed distribution generally signifies prompt acknowledgment of orders—this skewness indicates a location's strong performance in quickly processing most of its orders. <br><br>
+
 ```{r, fig.width=10, fig.height=8}
 order_late %>% 
   ggplot(aes(x = days_to_acknowledge)) +
@@ -211,21 +206,15 @@ order_late %>%
 
 ```
 
-<br><br>
-- Location 5: The pronounced right skewness here is an indicator of exceptional performance, with the bulk of orders being acknowledged very swiftly and only a few exceptions taking longer.<br>
-- Location 28: Demonstrates similar right skewness to Location 5, suggesting that the location efficiently acknowledges most orders, with rare delays.
-<br><br>
-
+<br><br> - Location 5: The pronounced right skewness here is an indicator of exceptional performance, with the bulk of orders being acknowledged very swiftly and only a few exceptions taking longer.<br> - Location 28: Demonstrates similar right skewness to Location 5, suggesting that the location efficiently acknowledges most orders, with rare delays. <br><br>
 
 Across all locations, understanding the right skewness within the context of order acknowledgment times is valuable. It allows for the recognition of high-performing locations, providing a benchmark for others, and highlights the necessity to address the exceptional cases in the tail to achieve consistent, organization-wide operational excellence.
 
-<br><br>
-
+<br><br><br><br>
 
 ### 2-5. Distribution of Days to Acknowledge by Leader
 
-The distribution of days to acknowledge orders when segmented by leaders can offer insights into management effectiveness and team performance. Analyzing these distributions helps identify which leaders are overseeing processes that ensure orders are acknowledged promptly and which may need to address delays within their teams.
-<br>
+The distribution of days to acknowledge orders when segmented by leaders can offer insights into management effectiveness and team performance. Analyzing these distributions helps identify which leaders are overseeing processes that ensure orders are acknowledged promptly and which may need to address delays within their teams. <br>
 
 ```{r, fig.width=10, fig.height=8}
 order_late %>% 
@@ -238,17 +227,17 @@ order_late %>%
   theme_classic()
 
 ```
+
 <br><br>
 
-- Ashley Morales: This leader's distribution shows a significant right skew with a high peak at the lower end, indicating that most orders under this leader are acknowledged very promptly, which is commendable.<br><br>
-- Jeremy Love: The distribution under this leader is quite varied without a pronounced skew, suggesting a diverse range of acknowledgment times.<br><br>
-- Justin Clark: Here we see a relatively uniform distribution across the acknowledgment period, with a slight increase towards the tail end, which may indicate delays.<br><br>
-- Lisa McMillan: This leader's distribution is also right-skewed, similar to Ashley Morales, however, there are notable late order acknowledgement <br><br>
-- Whitney Davidson: There is a notable right skew, but with a spike at the far end, suggesting that while many orders are acknowledged quickly, a significant number are also experiencing substantial delays.<br><br>
-
-
+-   Ashley Morales: This leader's distribution shows a significant right skew with a high peak at the lower end, indicating that most orders under this leader are acknowledged very promptly, which is commendable.<br><br>
+-   Jeremy Love: The distribution under this leader is quite varied without a pronounced skew, suggesting a diverse range of acknowledgment times.<br><br>
+-   Justin Clark: Here we see a relatively uniform distribution across the acknowledgment period, with a slight increase towards the tail end, which may indicate delays.<br><br>
+-   Lisa McMillan: This leader's distribution is also right-skewed, similar to Ashley Morales, however, there are notable late order acknowledgement <br><br>
+-   Whitney Davidson: There is a notable right skew, but with a spike at the far end, suggesting that while many orders are acknowledged quickly, a significant number are also experiencing substantial delays.<br><br><br><br>
 
 ### 2-6. Distribution of Days to Acknowledge by Week Number
+
 Analyzing the distribution of days to acknowledge by week number can provide insights into the operational trends over time and the influence of seasonal factors. <br>
 
 ```{r, fig.width=10, fig.height=8}
@@ -261,16 +250,17 @@ order_late %>%
   facet_wrap(~week_number) +
   theme_classic()
 ```
-<br><br>
-The histograms segmented by week number reveal:<br>
-- Some weeks suggesting quick acknowledgments. For example, weeks 1, 2, and 3 have significant right skewed, indicative of a strong start to the year.<br><br>
-- Such as week 40, indicating most orders are acknowledged very late.<br><br>
 
-This temporal analysis can highlight periods where the process may require adjustment due to increased order volumes or staff availability issues, such as holiday seasons or financial year-ends. Understanding these patterns is crucial for planning resources, managing workload, and setting realistic timelines for order processing.<br><br>
+<br><br> The histograms segmented by week number reveal:<br> - Some weeks suggesting quick acknowledgments. For example, weeks 1, 2, and 3 have significant right skewed, indicative of a strong start to the year.<br><br> - Such as week 40, indicating most orders are acknowledged very late.<br><br>
 
-
+This temporal analysis can highlight periods where the process may require adjustment due to increased order volumes or staff availability issues, such as holiday seasons or financial year-ends. Understanding these patterns is crucial for planning resources, managing workload, and setting realistic timelines for order processing.<br><br><br><br>
 
 ### 2-7. Summary Statistics by On Time
+
+This analysis provides a statistical breakdown of order acknowledgment times, distinguishing between orders acknowledged within the expected timeframe (on time) and those that were not (not on time).
+
+<br>
+
 ```{r}
 order_late %>%
   group_by(on_time) %>%
@@ -284,27 +274,314 @@ order_late %>%
   )
 ```
 
+##### Not On Time (0):
 
-### 2-8. Distribution of Days to Acknowledge by On Time
+-   Mean Days to Acknowledge: On average, orders not acknowledged on time took approximately 54.40 days.<br>
+-   Median Days to Acknowledge: The median acknowledgment time for these orders is 55 days, indicating that half of the late acknowledgments occurred faster than this, and half took longer.<br>
+-   Standard Deviation: There is substantial variability in the late acknowledgment times, as shown by a standard deviation of about 30.61.<br>
+-   Minimum Days to Acknowledge: The quickest acknowledgment time among the late acknowledgments is 3 days.<br>
+-   Maximum Days to Acknowledge: The longest acknowledgment time stretches out to 105 days.<br>
+-   Count: There are 20,793 orders that were not acknowledged on time.<br> <br><br>
+
+##### On Time (1):
+
+-   Mean Days to Acknowledge: Orders acknowledged on time have a mean acknowledgment time of exactly 2 days.<br>
+-   Median Days to Acknowledge: The median is also 2 days, indicating a very consistent acknowledgment time for on-time orders.<br>
+-   Standard Deviation: The standard deviation is 0, suggesting no variability; all on-time acknowledgments occurred in 2 days.<br>
+-   Minimum Days to Acknowledge: The minimum time is 2 days, aligning with the mean and median.<br>
+-   Maximum Days to Acknowledge: The maximum acknowledgment time is also 2 days, confirming the lack of variation.<br>
+-   Count: There are 1,144 orders that were acknowledged on time.<br>
+
+<br><br><br>
+
+#### *The descriptive analysis conducted so far has provided us with a solid understanding of the dataset's overall structure and the general patterns regarding order acknowledgment times. We have uncovered trends and identified areas where order acknowledgment performance is strong, as well as where there are opportunities for improvement. However, descriptive statistics and visualizations, while insightful, offer a limited view. They do not allow us to easily capture complex, multi-dimensional relationships in the data that can be leveraged for predictive insights or for segmenting orders into meaningful groups. This is where clustering analysis comes into play.*
+
+<br><br><br><br>
+
+## 3. Determine the Optimal Number of Clusters
+
+### 3-1. Scale the data
+
+-   Before performing clustering, it is essential to scale the data to ensure that all variables are on the same scale. This is particularly important when the variables have different units or scales, as is the case here, where the variables are measured in days.
 
 ```{r}
+order_late %>%
+  select(days_to_acknowledge) %>%
+  scale() %>% 
+  head(10)
+
+```
+
+I used 'scale' function to normilize the distribution of values in a dataset. It typically subtracts the mean and divides by the standard deviation for each value. This process, called z-score normalization, transforms the data into a distribution with a mean of 0 and a standard deviation of 1.
+
+#### Here's what the output indicates from the head(10) rows:<br>
+
+-   Negative Values: The negative values indicate that these data points are below the mean of the days_to_acknowledge distribution in your dataset.<br><br>
+
+-   Magnitude of the Values: The magnitude of the negative numbers reflects how many standard deviations away from the mean each value is. For instance, a value of -1.02 means the corresponding days_to_acknowledge is 1.02 standard deviations below the mean.<br><br>
+
+-   Similar Values: The repeating value of -1.114590 suggests that several orders have the same days_to_acknowledge value, which is also 1.114590 standard deviations below the mean.<br><br>
+
+-   Z-score: Each number is a z-score, representing how many standard deviations a value is from the mean. A z-score close to 0 would mean the value is near the average, while a higher magnitude (positive or negative) means it is further from the average.<br><br>
+
+-   Normalization is an important step before clustering because it puts all variables on the same scale, so one feature doesn't dominate the others due to a difference in units or spread of values. When run clustering algorithms like K-means, which rely on distance measures, having features on the same scale means that each feature contributes equally to the distance calculations.<br><br><br><br>
+
+### 3-2. Determine the Optimal Number of Clusters
+
+```{r, fig.width=10, fig.height=8}
+
+# Selecting numeric columns and removing rows with NA values
+numeric_data <- dplyr::select_if(order_late, is.numeric) %>% 
+  na.omit() 
+
+# Looks like, we should remove loc and order columns since they are categorical values
+numeric_data <- numeric_data %>% 
+  dplyr::select(-loc, -order) 
+
+# Confirming the structure
+str(numeric_data)
+
+```
+
+```{r, warning = FALSE, message = FALSE}
+# Calculate WCSS for each number of clusters
+wcss <- purrr::map_dbl(1:10, function(k) {
+  kmeans(numeric_data, centers = k, nstart = 25)$tot.withinss
+})
+
+# Create a tibble and plot the Elbow curve
+tibble::tibble(k = 1:10, wcss = wcss) %>% 
+  ggplot2::ggplot(ggplot2::aes(x = k, y = wcss)) +
+  ggplot2::geom_line() +
+  ggplot2::geom_point() +
+  ggplot2::labs(
+    title = "Elbow Method to Determine Optimal Number of Clusters",
+    x = "Number of Clusters",
+    y = "Within-Cluster Sum of Squares (WCSS)"
+  ) +
+  ggplot2::theme_classic()
+
+
+
+
+```
+
+<br><br> The plot displayed here is a typical "Elbow plot," which is used to help determine the optimal number of clusters for K-means clustering by looking at the within-cluster sum of squares (WCSS) against the number of clusters.<br><br>
+
+In the Elbow method, we look for the point where the WCSS graph starts to flatten out after a steep decline. The "elbow point" represents the number of clusters after which adding more clusters doesn't significantly reduce the variance within the clusters.<br><br>
+
+Based on the plot:<br>
+
+-   The steep decline from 1 to around 2 or 3 suggests significant gains in reducing within-cluster variance by increasing the number of clusters from 1 to 2 or 3.<br><br>
+
+-   After around 2 or 3 clusters, the line begins to flatten, indicating that adding more clusters beyond this point does not yield as substantial a decrease in WCSS.<br><br>
+
+-   The exact "elbow" isn't always clear-cut, but in this plot, it appears to be around the 2 or 3 cluster mark. This suggests that 2 or 3 might be the optimal number of clusters for this dataset. Choosing beyond 3 clusters would likely not result in significantly better clustering, as per the Elbow method.<br><br>
+
+## 4. Perform K-means Clustering <br><br>
+
+Performing K-means clustering with the optimal number of clusters identified in the previous step. I will use the kmeans() function to perform K-means clustering on the scaled numeric data, specifying the number of clusters as 3. I will also set the nstart parameter to 25 to ensure that the algorithm runs the K-means clustering 25 times with different initial centroids and selects the best set of initial centroids to minimize the total within-cluster variance. <br><br>
+
+```{r, warning = FALSE, message = FALSE}
+# Set seed for reproducibility
+set.seed(123)
+
+# Perform K-means clustering
+kmeans_results <- kmeans(numeric_data, centers = 3, nstart = 25)
+
+# Adding the cluster assignments to your data
+order_late$cluster <- kmeans_results$cluster
 order_late %>% 
-  ggplot(aes(x = days_to_acknowledge)) +
-  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
-  labs(title = "Distribution of Days to Acknowledge by On Time",
+  data.frame()
+```
+
+```{r}
+# Summarize the cluster sizes
+(table(order_late$cluster)) %>% 
+  data.frame()
+kmeans_results$centers %>% 
+  data.frame()
+```
+
+<br><br> After preprocessing the data to remove non-numeric and irrelevant columns (loc and order), and performing K-means clustering, we have the following results:<br><br>
+
+##### Cluster 1:<br><br>
+
+Average Week Number: 49.47<br> Average Days to Acknowledge: 55.80<br> Percentage On Time: 0.00%<br> This cluster tends to represent orders acknowledged later in the year (weeks in the late 40s), with a longer acknowledgment time on average, and none of these orders were acknowledged on time.<br><br>
+
+##### Cluster 2:<br><br>
+
+Average Week Number: 11.34<br> Average Days to Acknowledge: 17.87<br> Percentage On Time: 13.28%<br> This cluster includes orders from earlier in the year (weeks numbered around 11) with significantly shorter acknowledgment times, and a small proportion of these orders were acknowledged on time.<br><br>
+
+
+
+##### Cluster 3:<br><br>
+
+Average Week Number: 42.80<br> Average Days to Acknowledge: 89.36<br> Percentage On Time: 0.00%<br> This cluster is associated with orders placed around the middle of the year (week numbers in the low 40s) that have the longest acknowledgment times. Similar to Cluster 1, no orders in this cluster were acknowledged on time.<br><br>
+
+#### Interpretation:<br><br>
+
+Clusters are differentiated primarily by days_to_acknowledge and week_number.<br> Clusters 1 and 3 have a high average of days_to_acknowledge, and all their orders are not on time.<br> Cluster 2 represents more efficient order processing with shorter days_to_acknowledge and includes some orders that are on time.<br> The week_number variable suggests potential seasonal influences on order acknowledgment times, with different times of the year showing distinct patterns.<br><br><br><br>
+
+
+
+## 5. Visualizing Clusters <br><br>
+
+### 5-1. Visualizing Clusters in 2D Space <br><br>
+
+```{r, warning = FALSE, message = FALSE}
+ggplot(order_late, aes(x = week_number, y = days_to_acknowledge, color = as.factor(cluster))) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  labs(title = "Days to Acknowledge vs. Week Number by Cluster",
+       x = "Week Number",
+       y = "Days to Acknowledge",
+       color = "Cluster") +
+  theme_classic()
+
+```
+<br><br>
+
+##### This plot shows the relationship between the number of days to acknowledge an order and the week number when the order was placed, segmented by three different clusters. From the plot:
+
+- Cluster 1: Shows a trend of increasing acknowledgment time up to a certain point in the year before declining, which might reflect operational changes or varying demand.<br><br>
+- Cluster 2: Acknowledgment times are consistently quick throughout the year, indicating efficient processing.<br><br>
+- Cluster 3: Acknowledgment times peak around the later weeks of the year, suggesting a seasonal effect or bottleneck.<br><br>
+
+
+- The trends suggest that different strategies may be needed throughout the year to address acknowledgment delays, with particular attention to the periods indicated by the peaks for Clusters 2 and 3.<br><br><br><br>
+
+
+### 5-2. Visualizing Clusters in 3D Space <br><br>
+
+```{r, warning = FALSE, message = FALSE, fig.width=10, fig.height=8}
+order_late %>% 
+  plotly::plot_ly(x = ~week_number, y = ~days_to_acknowledge, z = ~on_time, color = ~factor(cluster), type = "scatter3d", mode = "markers") %>%
+  plotly::layout(
+    title = "K-means Clustering: Orders by Week Number, Days to Acknowledge, and On Time",
+    scene = list(
+      xaxis = list(title = "Week Number"),
+      yaxis = list(title = "Days to Acknowledge"),
+      zaxis = list(title = "On Time")
+    )
+  )
+
+```
+
+<br><br>
+- Cluster 2 exhibits the strongest performance, with orders being on time despite some variation in the number of days to acknowledge. The cluster's proximity to '1' on the 'On Time' axis suggests that the processes and strategies in place for these orders are effective.<br><br>
+
+- Cluster 1 shows orders that are not on time, with acknowledgment times varying. This cluster requires attention to identify the bottlenecks that lead to delays.<br><br>
+
+- Cluster 3 also indicates orders not on time, with a broad range of acknowledgment times. Like Cluster 2, it signals an area needing significant improvement to meet on-time delivery goals.<br><br>
+
+##### Actionable Steps for Improvement:<br>
+- For Cluster 2, the objective is to maintain high performance, perhaps by refining the current strategies and exploring further efficiencies.<br><br>
+
+- For Cluster 1 and Cluster 3, it's crucial to conduct a detailed analysis to understand the causes behind the delays in acknowledgment. Investigating whether these delays are due to operational, systemic, or seasonal factors will help in formulating appropriate corrective measures. Interventions may include process re-engineering, increased staffing during peak periods, or implementing more effective order tracking systems.<br><br>
+
+- By learning from the efficiency of Cluster 2 and understanding the underlying issues in Clusters 1 and 3, actionable steps can be implemented to enhance the overall timeliness of order acknowledgments.
+
+### 5-3. Visualizing Clusters with Histograms <br><br>
+
+```{r}
+ggplot(order_late, aes(x = days_to_acknowledge, fill = as.factor(cluster))) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~cluster) +
+  labs(title = "Histogram of Days to Acknowledge by Cluster",
        x = "Days to Acknowledge",
-       y = "Frequency") +
-  facet_wrap(~on_time) +
-  theme_minimal()
+       y = "Count",
+       fill = "Cluster") +
+  theme_classic()
+
+```
+
+### 5-4. Visualizing Clusters with Boxplots <br><br>
+
+```{r}
+ggplot(order_late, aes(x = factor(cluster), y = days_to_acknowledge, fill = factor(cluster))) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Days to Acknowledge by Cluster",
+       x = "Cluster",
+       y = "Days to Acknowledge",
+       fill = "Cluster") +
+  theme_classic()
+
+
+```
+
+<br><br>
+- Cluster 2 (Green): This cluster has the majority of its orders with the lowest days to acknowledge, with a significant count close to zero. This suggests highly efficient processing and a quick response to orders. To maintain this performance, processes from this cluster should be studied and potentially used as a benchmark for other clusters.<br><br>
+
+- Cluster 1 (Red): The second-best cluster has a wider spread of acknowledgment times but also includes many orders with lower acknowledgment times. However, there's a noticeable tail extending towards higher acknowledgment days. Actions for this cluster could include analyzing why some orders take longer to acknowledge and applying corrective measures to shift the distribution further to the left.<br><br>
+
+- Cluster 3 (Blue): The worst-performing cluster shows acknowledgment times that are spread across a broad range with a higher concentration towards longer days. This indicates a need for significant improvement. The focus for this cluster should be on identifying and addressing systemic inefficiencies or operational bottlenecks that lead to delays.<br><br><br><br>
+
+
+
+### 5-5. Visualizing Clusters with leaders <br><br>
+
+```{r}
+ggplot(order_late, aes(x = reorder(leader_name, days_to_acknowledge), y = days_to_acknowledge, fill = as.factor(cluster))) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(title = "Days to Acknowledge by Leader and Cluster",
+       x = "Leader Name",
+       y = "Days to Acknowledge",
+       fill = "Cluster") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 
 ```
 
 
+### 5-6. Visualizing Clusters with Location <br><br>
+
+```{r}
+ggplot(order_late, aes(x = reorder(loc, days_to_acknowledge), y = days_to_acknowledge, fill = as.factor(cluster))) +
+  geom_boxplot() +
+  theme_classic() +
+  labs(title = "Days to Acknowledge by Location and Cluster",
+       x = "Location",
+       y = "Days to Acknowledge",
+       fill = "Cluster") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 
-# Next: write up start from 2-7. clear what I've done so far. add comment. and develop the thoughts what to do next and why we need to look at the clustering analysis further which this descriptive analysis doesn't fully explain. (also add, for more reactive and descriptive plots and tables dashboard, please visit the link below.) if you need to add more descriptive plots here, feel free to add. 
+
+```
 
 
+### 5-7. Reactive Clustering filter Data <br><br>
+
+Click the following link for reactive clustering filter data: [Reactive Clustering filter Data](https://business-analytics-slee.shinyapps.io/supply_chain_analytics_clustering_reactive_data/)
+
+
+<br><br><br><br>
+
+## Conclusion <br><br>
+Cluster Performance:<br>
+- Cluster 2, characterized by orders that are quickly acknowledged, represents the best performance, serving as a model for efficient order processing.<br><br>
+- Cluster 1 exhibits a moderate acknowledgment timeframe, indicating good but improvable processes.<br><br>
+- Cluster 3 has the most delayed acknowledgments, identifying it as the primary area needing intervention.    <br><br>
+
+Seasonal and Temporal Effects:<br>
+- The acknowledgment times for certain clusters peak at specific periods of the year, suggesting seasonal impacts on order processing that require adaptive management strategies.<br><br>
+
+Leadership Impact:<br>
+- There are clear variations in acknowledgment times across different leaders. Emulating the practices of leaders with the most efficient clusters could improve <br><br>
+
+Location-Specific Insights:<br>
+- Some locations are consistently associated with delayed acknowledgments. Targeted improvements at these locations could significantly enhance the timeliness of the overall acknowledgment process.<br><br>
+
+Actionable Strategies:<br>
+- For clusters with delayed acknowledgments, conduct root cause analyses to address systemic issues.<br><br>
+- Implement best practices from efficient clusters across the board to elevate performance.<br><br>
+- Consider seasonal staffing adjustments and process optimizations to manage peak times effectively.<br><br>
+- Engage in continuous improvement cycles, using insights from the data to refine processes regularly.<br><br>
+
+Monitoring and Continuous Improvement:<br>
+- Establish a monitoring system to ensure that the implemented changes yield the expected improvements and to quickly identify any backsliding or new issues.<br><br>
 
 ------------------------------------------------------------------------
 
@@ -315,7 +592,3 @@ order_late %>%
 cat("Copyright © 2023-", format(Sys.Date(), "%Y"), "Sangho Lee, All rights reserved.")
 ```
 :::
-
-
-
-
