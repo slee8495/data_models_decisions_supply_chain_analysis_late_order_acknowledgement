@@ -29,6 +29,31 @@ font-size: 1.2em;
 
 ------------------------------------------------------------------------
 
+# **Case Summary**
+<br><br>
+
+# **Note:**
+
+#### - The information shown here is made-up. I made it with random numbers and names using the Python code you can see below. While the data is not real, it is designed to be a hypothetical yet realistic representation of actual data encountered in the field.
+
+<br>
+
+![](images/Screenshot%202024-02-26%20at%207.18.48%20PM.png)
+
+<br>
+
+#### - For a descriptive analysis, which includes various plots and datasets, click on the link below:
+
+### [Click here: Descriptive Analysis - Late Order Acknowledgement](https://business-analytics-slee.shinyapps.io/SupplyChainAnalytics_LateOrder_descriptive/)
+<span style="color:red">**Please be aware that the data analysis presented here may differ from the data displayed in the reactive Shiny dashboard. This discrepancy is due to the random generation of data, which can produce different results each time.**</span>
+
+<br>
+
+#### - In summary, I'm going to conduct a clustering analysis with the "Late Order Acknowledgement" dataset using R. The aim is to discover clusters or patterns within the data by examining variables such as the number of days taken to acknowledge an order, location, and the type of order—whether it's a standard profile order, a leadership-directed order, or customer-specific. This analysis may reveal distinct groupings in the dataset that share commonalities in their order acknowledgement timeframes.
+
+<br>
+
+
 ### Problem Statement: <br>
 
 In the competitive landscape of order processing, the promptness and efficiency of acknowledging orders are pivotal for sustaining high customer satisfaction and operational effectiveness. However, an analysis of this sample dataset reveals a concerning trend: a significant portion of order acknowledgments are not being made on time. This inefficiency poses a risk not only to customer satisfaction but also to the reliability of the order fulfillment process. The aim of this analysis is to examine into the underlying causes of these delays by examining the days it takes to acknowledge orders and exploring variations across different dimensions such as profile owner, location, and leader. Through descriptive analysis and K-means clustering, we seek to uncover patterns, bottlenecks, and actionable insights that can ultimately lead to process optimizations. Identifying distinct clusters of order behaviors and acknowledgment times will allow us to pinpoint specific areas for improvement, thereby enhancing process efficiencies and ensuring timely order acknowledgments. The ultimate goal is to transform these insights into strategic actions that elevate operational performance and customer service levels.<br><br>
